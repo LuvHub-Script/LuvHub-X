@@ -1,0 +1,123 @@
+-- [[ LUVHUB X - LOADER (AUTO-DESTRUCT FIX) ]] --
+-- Credits: Muh Lutfi Alghifari
+
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+local MarketplaceService = game:GetService("MarketplaceService")
+local Debris = game:GetService("Debris") -- Layanan Pembersih Otomatis
+
+local PlaceID = game.PlaceId
+local MyLogo = "rbxassetid://81111630423385" 
+
+-- [[ SETTING TAMPILAN ]] --
+local Card_Width = 170
+local Card_Height = 38
+local Y_Position = 0.85 
+local Right_Margin = -10
+
+-- [[ FUNGSI NOTIFIKASI (ANTI-NYANGKUT) ]] --
+local function ShowOverlay(TitleText, SubText)
+    task.spawn(function()
+        -- Bersihkan notif lama
+        if CoreGui:FindFirstChild("LuvHubNotif") then CoreGui.LuvHubNotif:Destroy() end
+
+        local ScreenGui = Instance.new("ScreenGui")
+        ScreenGui.Name = "LuvHubNotif"
+        ScreenGui.Parent = CoreGui
+        ScreenGui.DisplayOrder = 10000 -- Selalu di atas
+        ScreenGui.IgnoreGuiInset = true 
+
+        -- [[ FITUR BARU: AUTO-DELETE ]] --
+        -- GUI ini akan DIHANCURKAN PAKSA setelah 6 detik.
+        -- Tidak peduli script error atau macet, dia pasti hilang.
+        Debris:AddItem(ScreenGui, 6) 
+
+        -- Frame Utama
+        local Frame = Instance.new("Frame")
+        Frame.Name = "MainFrame"
+        Frame.Parent = ScreenGui
+        Frame.Size = UDim2.new(0, Card_Width, 0, Card_Height)
+        Frame.AnchorPoint = Vector2.new(1, 1) -- Kanan Bawah
+        Frame.Position = UDim2.new(1, 200, Y_Position, 0) -- Mulai dari Luar
+        Frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Frame.BorderSizePixel = 0
+        
+        -- Desain
+        local UICorner = Instance.new("UICorner"); UICorner.CornerRadius = UDim.new(0, 8); UICorner.Parent = Frame
+        
+        local UIGradient = Instance.new("UIGradient")
+        UIGradient.Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0.00, Color3.fromRGB(15, 15, 30)), 
+            ColorSequenceKeypoint.new(1.00, Color3.fromRGB(0, 100, 200)) 
+        }
+        UIGradient.Rotation = 45; UIGradient.Parent = Frame
+        
+        local UIStroke = Instance.new("UIStroke"); UIStroke.Parent = Frame; UIStroke.Color = Color3.fromRGB(0, 180, 255); UIStroke.Thickness = 1.2; UIStroke.Transparency = 0.4
+
+        -- Logo
+        local Logo = Instance.new("ImageLabel"); Logo.Parent = Frame
+        Logo.BackgroundTransparency = 1
+        Logo.Position = UDim2.new(0, 6, 0.5, -12)
+        Logo.Size = UDim2.new(0, 24, 0, 24)
+        Logo.Image = MyLogo
+        local LogoCorner = Instance.new("UICorner"); LogoCorner.CornerRadius = UDim.new(0, 8); LogoCorner.Parent = Logo
+
+        -- Teks
+        local Title = Instance.new("TextLabel"); Title.Parent = Frame
+        Title.BackgroundTransparency = 1
+        Title.Position = UDim2.new(0, 36, 0, 3)
+        Title.Size = UDim2.new(0, 130, 0, 16)
+        Title.Font = Enum.Font.GothamBlack; Title.Text = TitleText; Title.TextColor3 = Color3.fromRGB(255, 255, 255); Title.TextSize = 11; Title.TextXAlignment = Enum.TextXAlignment.Left
+        
+        local Desc = Instance.new("TextLabel"); Desc.Parent = Frame
+        Desc.BackgroundTransparency = 1
+        Desc.Position = UDim2.new(0, 36, 0, 18)
+        Desc.Size = UDim2.new(0, 130, 0, 12)
+        Desc.Font = Enum.Font.Gotham; Desc.Text = SubText; Desc.TextColor3 = Color3.fromRGB(200, 200, 200); Desc.TextSize = 9; Desc.TextXAlignment = Enum.TextXAlignment.Left
+
+        -- Loading Bar
+        local BarBg = Instance.new("Frame"); BarBg.Parent = Frame; BarBg.BackgroundColor3 = Color3.fromRGB(0,0,0); BarBg.BackgroundTransparency = 0.6; BarBg.BorderSizePixel = 0; BarBg.Position = UDim2.new(0, 0, 1, -2); BarBg.Size = UDim2.new(1, 0, 0, 2); Instance.new("UICorner", BarBg).CornerRadius = UDim.new(0, 4)
+        local BarFill = Instance.new("Frame"); BarFill.Parent = BarBg; BarFill.BackgroundColor3 = Color3.fromRGB(0, 255, 255); BarFill.BorderSizePixel = 0; BarFill.Size = UDim2.new(0, 0, 1, 0); Instance.new("UICorner", BarFill).CornerRadius = UDim.new(0, 4)
+
+        -- [[ ANIMASI ]] --
+        -- Masuk
+        Frame:TweenPosition(UDim2.new(1, Right_Margin, Y_Position, 0), "Out", "Back", 0.5)
+        
+        -- Loading Bar (4 Detik)
+        BarFill:TweenSize(UDim2.new(1, 0, 1, 0), "Linear", "Linear", 4)
+        
+        -- Tunggu 4.5 Detik lalu Keluar
+        task.wait(4.5)
+        Frame:TweenPosition(UDim2.new(1, 200, Y_Position, 0), "In", "Back", 0.5)
+        
+        -- (Catatan: ScreenGui akan otomatis hancur sendiri oleh Debris di detik ke-6)
+    end)
+end
+
+-- [[ EKSEKUSI SCRIPT (LANGSUNG) ]] --
+local function ExecuteScript(Url)
+    -- Pakai pcall biar kalau link error, loader gak macet
+    task.spawn(function()
+        local success, err = pcall(function()
+            loadstring(game:HttpGet(Url))()
+        end)
+        if not success then warn("LuvHub Load Error: " .. tostring(err)) end
+    end)
+end
+
+-- [[ MAIN CHECKER ]] --
+local success, info = pcall(function() return MarketplaceService:GetProductInfo(PlaceID) end)
+local ID_FishOn = 111189697641017
+local ID_FishingThatFish = 83240747149686
+
+if PlaceID == ID_FishOn then
+    ShowOverlay("LuvHub X", "Injecting Fish On...")
+    ExecuteScript("https://raw.githubusercontent.com/LuvHub-Script/LuvHub-X/main/Main/FishOn")
+
+elseif PlaceID == ID_FishingThatFish then
+    ShowOverlay("LuvHub X", "Injecting Script...")
+    ExecuteScript("https://raw.githubusercontent.com/LuvHub-Script/LuvHub-X/main/Main/FishingThatFish")
+
+else
+    ShowOverlay("LuvHub X", "Game Not Supported")
+end
