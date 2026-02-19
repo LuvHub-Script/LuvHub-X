@@ -1,0 +1,219 @@
+local ScriptName = "LuvHub_Gen_Script"
+local OldGui = game.CoreGui:FindFirstChild(ScriptName)
+if OldGui then OldGui:Destroy() end
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = ScriptName
+ScreenGui.Parent = game.CoreGui
+ScreenGui.ResetOnSpawn = false
+
+local Colors = {
+    Sidebar = Color3.fromRGB(12, 12, 18),
+    Accent = Color3.fromRGB(0, 200, 255), 
+    Text = Color3.fromRGB(240, 240, 240),
+    SubText = Color3.fromRGB(130, 130, 150)
+}
+
+local function AddGradient(Parent)
+    local UIGradient = Instance.new("UIGradient")
+    UIGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(10, 10, 20)), 
+        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(0, 60, 110))
+    }
+    UIGradient.Rotation = 45; UIGradient.Parent = Parent
+end
+
+local ToggleBtn = Instance.new("ImageButton", ScreenGui)
+ToggleBtn.BackgroundColor3 = Colors.Sidebar; ToggleBtn.Position = UDim2.new(0.02, 0, 0.4, 0); ToggleBtn.Size = UDim2.new(0, 40, 0, 40); ToggleBtn.Image = "rbxassetid://81111630423385"; ToggleBtn.Visible = false; ToggleBtn.Active = true; ToggleBtn.Draggable = true
+Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(0, 12)
+Instance.new("UIStroke", ToggleBtn).Color = Colors.Accent
+
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255); MainFrame.AnchorPoint = Vector2.new(0.5, 0.5); MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0); MainFrame.Size = UDim2.new(0, 0, 0, 0); MainFrame.ClipsDescendants = true; MainFrame.Active = true; MainFrame.Draggable = true
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10); AddGradient(MainFrame)
+
+local CloseBtn = Instance.new("TextButton", MainFrame); CloseBtn.Text = "X"; CloseBtn.TextColor3 = Color3.fromRGB(255, 80, 80); CloseBtn.BackgroundTransparency = 1; CloseBtn.Font = Enum.Font.GothamBold; CloseBtn.Size = UDim2.new(0, 25, 0, 25); CloseBtn.Position = UDim2.new(0.92, 0, 0, 0)
+local MinBtn = Instance.new("TextButton", MainFrame); MinBtn.Text = "-"; MinBtn.TextColor3 = Colors.SubText; MinBtn.BackgroundTransparency = 1; MinBtn.Font = Enum.Font.GothamBold; MinBtn.Size = UDim2.new(0, 25, 0, 25); MinBtn.Position = UDim2.new(0.84, 0, 0, 0)
+local Title = Instance.new("TextLabel", MainFrame); Title.Text = "LuvHub X Fishzar | testing"; Title.TextColor3 = Colors.Accent; Title.Font = Enum.Font.GothamBlack; Title.TextSize = 11; Title.Position = UDim2.new(0.05, 0, 0, 8); Title.Size = UDim2.new(0.4, 0, 0, 15); Title.BackgroundTransparency = 1; Title.TextXAlignment = Enum.TextXAlignment.Left
+
+local Body = Instance.new("Frame", MainFrame); Body.Size = UDim2.new(1, 0, 1, 0); Body.BackgroundTransparency = 1; Body.ClipsDescendants = true; Instance.new("UICorner", Body).CornerRadius = UDim.new(0, 10)
+local Sidebar = Instance.new("Frame", Body); Sidebar.BackgroundColor3 = Color3.fromRGB(0, 0, 0); Sidebar.BackgroundTransparency = 0.5; Sidebar.Position = UDim2.new(0, 0, 0, 30); Sidebar.Size = UDim2.new(0.28, 0, 1, -30); Sidebar.BorderSizePixel = 0
+local Content = Instance.new("Frame", Body); Content.BackgroundTransparency = 1; Content.Position = UDim2.new(0.28, 0, 0, 30); Content.Size = UDim2.new(0.72, 0, 1, -30)
+local Tabs = {}; local PageCounters = {}
+
+local function CreateTab(Name, EmojiIcon, PageName)
+    local Btn = Instance.new("TextButton", Sidebar); Btn.BackgroundTransparency = 1; Btn.Size = UDim2.new(1, 0, 0, 35); Btn.Text = ""
+    local Icon = Instance.new("TextLabel", Btn); Icon.Text = EmojiIcon; Icon.BackgroundTransparency = 1; Icon.Size = UDim2.new(0, 30, 1, 0); Icon.TextColor3 = Colors.SubText; Icon.TextSize = 14
+    local Title = Instance.new("TextLabel", Btn); Title.Text = Name; Title.Font = Enum.Font.GothamBold; Title.TextSize = 9; Title.TextColor3 = Colors.SubText; Title.BackgroundTransparency = 1; Title.Size = UDim2.new(0.6, 0, 1, 0); Title.Position = UDim2.new(0, 32, 0, 0); Title.TextXAlignment = Enum.TextXAlignment.Left
+    local Page = Instance.new("ScrollingFrame", Content); Page.Name = PageName; Page.Size = UDim2.new(1, 0, 1, 0); Page.BackgroundTransparency = 1; Page.Visible = false; Page.ScrollBarThickness = 4; Page.CanvasSize = UDim2.new(0, 0, 0, 0)
+    local PList = Instance.new("UIListLayout", Page); PList.Padding = UDim.new(0, 4); PList.SortOrder = Enum.SortOrder.LayoutOrder; Instance.new("UIPadding", Page).PaddingLeft = UDim.new(0, 5)
+    PList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function() Page.CanvasSize = UDim2.new(0, 0, 0, PList.AbsoluteContentSize.Y + 50) end)
+    PageCounters[Page] = 0
+    Btn.MouseButton1Click:Connect(function() for _, t in pairs(Tabs) do t.Icon.TextColor3=Colors.SubText; t.Title.TextColor3=Colors.SubText; t.Page.Visible=false end; Icon.TextColor3 = Colors.Accent; Title.TextColor3 = Colors.Text; Page.Visible = true end)
+    table.insert(Tabs, {Icon = Icon, Title = Title, Page = Page})
+    return Page
+end
+
+local function CreateSection(Page, LabelText, Type, Callback)
+    PageCounters[Page] = PageCounters[Page] + 1; local CurrentOrder = PageCounters[Page]
+    if Type == "Label" then
+        local Lbl = Instance.new("TextLabel", Page); Lbl.Size = UDim2.new(0.96, 0, 0, 15); Lbl.BackgroundTransparency = 1; Lbl.Text = LabelText; Lbl.TextColor3 = Color3.fromRGB(180, 180, 180); Lbl.Font = Enum.Font.GothamBold; Lbl.TextSize = 8; Lbl.TextXAlignment = Enum.TextXAlignment.Left; Lbl.LayoutOrder = CurrentOrder; return
+    end
+    local Section = Instance.new("Frame", Page); Section.LayoutOrder = CurrentOrder; Section.BackgroundColor3 = Color3.fromRGB(0, 0, 0); Section.BackgroundTransparency = 0.6; Section.Size = UDim2.new(0.96, 0, 0, 28); Instance.new("UICorner", Section).CornerRadius = UDim.new(0, 4)
+    local Title = Instance.new("TextLabel", Section); Title.Text = LabelText; Title.Font = Enum.Font.GothamBold; Title.TextSize = 9; Title.TextColor3 = Colors.Text; Title.Size = UDim2.new(0.55, 0, 1, 0); Title.Position = UDim2.new(0.05, 0, 0, 0); Title.BackgroundTransparency = 1; Title.TextXAlignment = Enum.TextXAlignment.Left
+    if Type == "Toggle" then
+        local TogBtn = Instance.new("TextButton", Section); TogBtn.Size = UDim2.new(0, 28, 0, 14); TogBtn.Position = UDim2.new(1, -35, 0.5, -7); TogBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60); TogBtn.Text = ""; Instance.new("UICorner", TogBtn).CornerRadius = UDim.new(1, 0)
+        local On = false; TogBtn.MouseButton1Click:Connect(function() On = not On; TogBtn.BackgroundColor3 = On and Colors.Accent or Color3.fromRGB(60, 60, 60); Callback(On) end)
+    elseif Type == "Input" then
+        local Box = Instance.new("TextBox", Section); Box.Size = UDim2.new(0, 60, 0, 16); Box.Position = UDim2.new(1, -68, 0.5, -8); Box.BackgroundColor3 = Color3.fromRGB(20, 20, 20); Box.Text = ""; Box.PlaceholderText = "Set"; Box.TextColor3 = Colors.Accent; Box.Font = Enum.Font.Gotham; Box.TextSize = 8; Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 4)
+        Box.FocusLost:Connect(function() Callback(Box.Text) end)
+    elseif Type == "Button" then
+        local Btn = Instance.new("TextButton", Section); Btn.Size = UDim2.new(0, 60, 0, 16); Btn.Position = UDim2.new(1, -68, 0.5, -8); Btn.BackgroundColor3 = Colors.Accent; Btn.Text = "Click"; Btn.Font = Enum.Font.GothamBold; Btn.TextSize = 8; Btn.TextColor3 = Color3.fromRGB(0, 0, 0); Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 4)
+        Btn.MouseButton1Click:Connect(function() Callback(Btn) end)
+    elseif Type == "Selector" then
+        local SelBtn = Instance.new("TextButton", Section); SelBtn.Size = UDim2.new(0, 80, 0, 16); SelBtn.Position = UDim2.new(1, -90, 0.5, -8); SelBtn.BackgroundColor3 = Color3.fromRGB(40, 45, 55); SelBtn.Text = "Select >"; SelBtn.TextColor3 = Colors.Accent; SelBtn.Font = Enum.Font.GothamBold; SelBtn.TextSize = 8; Instance.new("UICorner", SelBtn).CornerRadius = UDim.new(0, 4)
+        SelBtn.MouseButton1Click:Connect(function() Callback(SelBtn) end)
+    end
+end
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local FishingSystem = ReplicatedStorage:WaitForChild("FishingSystem", 10)
+local FishingModules = FishingSystem and FishingSystem:WaitForChild("FishingModules", 10)
+
+_G.FarmingActive = false
+_G.ScriptRunning = true
+_G.MinigameDelay = 3.0
+
+local AnimController, CastingModule
+if FishingModules then
+    pcall(function() AnimController = require(FishingModules:WaitForChild("AnimationController")) end)
+    pcall(function() CastingModule = require(FishingModules:WaitForChild("CastingSystem")) end)
+end
+
+local function getRodTip(character)
+    local activeSkin = character:FindFirstChild("ActiveSkinModel")
+    if activeSkin then
+        return activeSkin:FindFirstChild("Tip") or activeSkin:FindFirstChild("Part") or activeSkin:FindFirstChild("Handle")
+    end
+    local rod = character:FindFirstChildWhichIsA("Tool")
+    if rod then
+        return rod:FindFirstChild("Part") or rod:FindFirstChild("Handle")
+    end
+    return nil
+end
+
+local function createRealVisual(tipPart, castPos, rodName)
+    if not tipPart or not CastingModule then return nil end
+    local realHook = nil
+    pcall(function()
+        realHook = CastingModule:CreateHook(castPos, rodName)
+        if realHook then
+            realHook.Name = "AutoFarmHook"
+            realHook.Anchored = true
+            
+            local att0 = tipPart:FindFirstChild("BeamAttachment")
+            if not att0 then
+                att0 = Instance.new("Attachment", tipPart)
+                att0.Name = "BeamAttachment"
+            end
+            
+            local att1 = realHook:FindFirstChild("BeamAttachment")
+            if not att1 then
+                att1 = Instance.new("Attachment", realHook)
+                att1.Name = "BeamAttachment"
+            end
+            
+            CastingModule:CreateBeam(realHook, att0, att1, rodName)
+        end
+    end)
+    return realHook
+end
+
+local function getEquippedRod()
+    local char = LocalPlayer.Character
+    if not char then return nil end
+    local tool = char:FindFirstChildWhichIsA("Tool")
+    if tool then return tool.Name end
+    return nil
+end
+
+task.spawn(function()
+    while _G.ScriptRunning do
+        task.wait(0.2)
+        if _G.FarmingActive and FishingSystem then
+            pcall(function()
+                local character = LocalPlayer.Character
+                local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+                local actualRod = getEquippedRod()
+                
+                if character and rootPart and actualRod then
+                    local castPos = rootPart.Position + (rootPart.CFrame.LookVector * 15) + Vector3.new(0, -6, 0)
+                    local tipPart = getRodTip(character)
+
+                    if AnimController then pcall(function() AnimController:Play("PrepareCast", 0.1) end) end
+                    FishingSystem.CastReplication:FireServer(castPos, rootPart.Position, actualRod, 99.5 + math.random())
+                    local activeVisualHook = createRealVisual(tipPart, castPos, actualRod)
+                    
+                    task.wait(1.5)
+                    FishingSystem.PrecalcFish:InvokeServer()
+                    task.wait(0.5)
+                    
+                    if AnimController then pcall(function() AnimController:Play("PullingAnimation", 0.1) end) end
+                    FishingSystem.ReplicatePullAlert:FireServer("rbxassetid://76503247176490")
+                    
+                    task.wait(_G.MinigameDelay) 
+                    FishingSystem.FishGiver:FireServer({ ["hookPosition"] = castPos })
+                    task.wait(0.3)
+                    
+                    FishingSystem.CleanupCast:FireServer()
+                    if activeVisualHook then activeVisualHook:Destroy() end
+                    if AnimController then pcall(function() AnimController:Play("EquippedAnimation", 0.3) end) end
+                    
+                    task.wait(1.2) 
+                else
+                    task.wait(1)
+                end
+            end)
+        end
+    end
+end)
+
+local Page1 = CreateTab("Auto Fishing", "🎣", "Main")
+
+CreateSection(Page1, "Pastikan Rod Dipegang!", "Label")
+
+CreateSection(Page1, "Auto Farm (Fast + Tali Asli)", "Toggle", function(State)
+    _G.FarmingActive = State
+end)
+
+CreateSection(Page1, "Delay (Default 3.0)", "Input", function(Value)
+    local num = tonumber(Value)
+    if num and num >= 0.5 then
+        _G.MinigameDelay = num
+    else
+        _G.MinigameDelay = 3.0
+    end
+end)
+
+CreateSection(Page1, "Hapus Kail Nyangkut", "Button", function()
+    for _, v in pairs(workspace:GetChildren()) do
+        if v.Name == "AutoFarmHook" then v:Destroy() end
+    end
+end)
+
+CloseBtn.MouseButton1Click:Connect(function() 
+    _G.FarmingActive = false
+    _G.ScriptRunning = false
+    for _, v in pairs(workspace:GetChildren()) do
+        if v.Name == "AutoFarmHook" then v:Destroy() end
+    end
+    ScreenGui:Destroy() 
+end)
+
+MainFrame:TweenSize(UDim2.new(0, 400, 0, 260), "Out", "Back", 0.5, true)
+MinBtn.MouseButton1Click:Connect(function() MainFrame:TweenSize(UDim2.new(0,0,0,0), "In", "Back", 0.3, true, function() MainFrame.Visible=false; ToggleBtn.Visible=true end) end)
+ToggleBtn.MouseButton1Click:Connect(function() ToggleBtn.Visible=false; MainFrame.Visible=true; MainFrame:TweenSize(UDim2.new(0, 400, 0, 260), "Out", "Back", 0.4, true) end)
+if Tabs[1] then Tabs[1].Icon.TextColor3 = Colors.Accent; Tabs[1].Title.TextColor3 = Colors.Text; Tabs[1].Page.Visible = true end
