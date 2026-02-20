@@ -516,7 +516,7 @@ local Page2 = CreateTab("Teleport", "🌐", "Teleport")
 
 CreateSection(PageInfo, "📢 PENGUMUMAN", "Label")
 CreateSection(PageInfo, "Selamat datang di LuvHub X Fishzar!\n\nUpdate Terbaru:\n- Penambahan fitur Auto Sell & Shop.\n- Perbaikan tampilan UI.\n- Optimasi pembacaan data ikan.\n\nEnjoy the script!", "InfoBox")
-CreateSection(PageInfo, "Catatan:\n- Gunakan fitur Auto Farm maksimal delay 2 detik ya.\n- Teleport dengan bijak untuk menghindari deteksi game.", "InfoBox")
+CreateSection(PageInfo, "Catatan:\n- Gunakan fitur Auto Farm maksimal delay 2 detik dan dilarang click tombol cast/tombol auto saat togle auto farm script diaktifkan.\n- Teleport dengan bijak untuk menghindari deteksi game.", "InfoBox")
 
 CreateSection(Page1, "Auto Fishing", "Label")
 CreateSection(Page1, "Auto Farm", "Toggle", function(s) _G.FarmingActive = s end)
