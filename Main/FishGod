@@ -25,7 +25,6 @@ local IslandCoords = {
     {Name = "Sky Heaven",      Pos = Vector3.new(1993.38, 902.81, -646.18)},
     {Name = "Candy Island",Pos = Vector3.new(-994.31, 49.11, 40.90)},
     {Name = "Ocean",Pos = Vector3.new(-261.97, 45.37, -363.02)},
-    {Name = "Ras Deep",Pos = Vector3.new(192.62, 76.27, -1599.52)},
 }
 
 _G.ScriptRunning = true
@@ -40,6 +39,11 @@ _G.ZoneId = "stater"
 
 _G.SpoofRarity = ""
 _G.SpoofWeight = ""
+
+_G.AutoSpinRace = false
+_G.TargetRace = "GodPrimodal"
+_G.SpinDelay = 0
+local RacesList = {"Human", "Elf", "Dwarf", "Orc", "Angel", "Demon", "Dragon", "GodPrimodal", "No Target"}
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -612,6 +616,19 @@ CreateSection(STab, "Sell Actions", "Label")
 CreateSection(STab, "Jual Ikan di Tangan", "Button", SellSingleFish, "Sell 1")
 CreateSection(STab, "Jual Semua Ikan", "Button", SellAllFish, "Sell All")
 
+local ToolTab = CreateTab("Tools", "🛠️", 5)
+
+CreateSection(ToolTab, "Auto Spin Race", "Label")
+CreateSection(ToolTab, "Target Race", "Choice", function(v) _G.TargetRace = v end, RacesList)
+CreateSection(ToolTab, "Spin Delay (Sec)", "Input", function(v) _G.SpinDelay = tonumber(v) or 0 end)
+
+local AutoSpinStatusLbl = CreateSection(ToolTab, "Status: Idle", "DynamicLabel")
+
+CreateSection(ToolTab, "Mulai Auto Spin", "Toggle", function(v) 
+    _G.AutoSpinRace = v 
+    if not v and AutoSpinStatusLbl then AutoSpinStatusLbl.Text = "Status: Berhenti" end
+end)
+
 Tabs[1].Ico.TextColor3 = Colors.Accent
 Tabs[1].Txt.TextColor3 = Colors.Text
 Tabs[1].Page.Visible = true
@@ -719,3 +736,75 @@ if FishingSystem then
         end
     end)
 end
+
+local cachedTextLabel = nil
+task.spawn(function()
+    while _G.ScriptRunning do
+        if _G.AutoSpinRace then
+            local delayTime = _G.SpinDelay
+            if delayTime > 0 then
+                task.wait(delayTime)
+            else
+                task.wait()
+            end
+            
+            if _G.TargetRace == "No Target" then
+                if AutoSpinStatusLbl then AutoSpinStatusLbl.Text = "Status: Menguras Duit (Spamming)" end
+                pcall(function()
+                    ReplicatedStorage:WaitForChild("RaceEvents"):WaitForChild("SpinRace"):InvokeServer()
+                end)
+            else
+                local currentRaceFound = "Unknown"
+                
+                -- Scanning BillboardGui di Character
+                if not cachedTextLabel or not cachedTextLabel.Parent then
+                    local char = LocalPlayer.Character
+                    if char then
+                        for _, desc in ipairs(char:GetDescendants()) do
+                            if desc:IsA("TextLabel") and desc:FindFirstAncestorWhichIsA("BillboardGui") then
+                                local txt = string.lower(desc.Text)
+                                for _, r in ipairs(RacesList) do
+                                    if r ~= "No Target" then
+                                        local searchWord = (r == "GodPrimodal") and "godprimod" or string.lower(r)
+                                        if string.find(txt, searchWord) then
+                                            cachedTextLabel = desc
+                                            break
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+                
+              
+                if cachedTextLabel then
+                    local txt = string.lower(cachedTextLabel.Text)
+                    for _, r in ipairs(RacesList) do
+                        if r ~= "No Target" then
+                            local searchWord = (r == "GodPrimodal") and "godprimod" or string.lower(r)
+                            if string.find(txt, searchWord) then
+                                currentRaceFound = r
+                                break
+                            end
+                        end
+                    end
+                end
+                
+                if AutoSpinStatusLbl then AutoSpinStatusLbl.Text = "Terdeteksi: " .. currentRaceFound end
+                
+                
+                if currentRaceFound == _G.TargetRace then
+                    _G.AutoSpinRace = false 
+                    if AutoSpinStatusLbl then AutoSpinStatusLbl.Text = "🎉 DAPAT: " .. _G.TargetRace .. "!" end
+                else
+                    pcall(function()
+                        ReplicatedStorage:WaitForChild("RaceEvents"):WaitForChild("SpinRace"):InvokeServer()
+                    end)
+                end
+            end
+        else
+            task.wait(0.5)
+        end
+    end
+end)
