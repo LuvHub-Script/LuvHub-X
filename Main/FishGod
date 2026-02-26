@@ -25,6 +25,7 @@ local IslandCoords = {
     {Name = "Sky Heaven",      Pos = Vector3.new(1993.38, 902.81, -646.18)},
     {Name = "Candy Island",Pos = Vector3.new(-994.31, 49.11, 40.90)},
     {Name = "Ocean",Pos = Vector3.new(-261.97, 45.37, -363.02)},
+    {Name = "Ras Deep",Pos = Vector3.new(192.62, 76.27, -1599.52)},
 }
 
 _G.ScriptRunning = true
