@@ -580,7 +580,7 @@ end
 
 local ITab = CreateTab("Info", "ℹ️", 1)
 CreateSection(ITab, "", "Profile")
-CreateSection(ITab, "Selamat datang di script LuvHub X FishGod\n \nPERHATIKAN AGAK PENTING.!!\n \n- Gunakan Semaksimal mungkin jangan sampai ketahuan admin.\n- Ubah Rarity & Weight sesuka hati ketika mau jual ikan.\n- Semua fitur speed bisa di set ke 0.\n- Inget ya aku ga bertanggung jawab apabila terkena banned,tapi gw aman aja kok.\n-Semoga aman & ga di fix.\n \nBismillahirramanirrahim Al-Fatihah.", "InfoBox")
+CreateSection(ITab, "Selamat datang di script LuvHub X FishGod\n \nPERHATIKAN AGAK PENTING.!!\n \n- Gunakan Semaksimal mungkin jangan sampai ketahuan admin.\n- Ubah Rarity & Weight sesuka hati ketika mau jual ikan.\n- Semua fitur speed bisa di set ke 0.\n- Inget ya aku ga bertanggung jawab apabila terkena banned,tapi gw aman aja kok.\n- JANGAN ASAL INPUT WEIGHT MAKSIMAL 9 nya 12 KALI AGAR DUIT NYA GA TERLALU BANYAK, yang berakibatkan minus nanti🗿.\n-Semoga aman & ga di fix.\n \nBismillahirramanirrahim Al-Fatihah.", "InfoBox")
 
 local FTab = CreateTab("Fishing", "🎣", 2)
 CreateSection(FTab, "Basic Farming", "Label")
