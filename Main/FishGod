@@ -578,7 +578,7 @@ end
 
 local ITab = CreateTab("Info", "ℹ️", 1)
 CreateSection(ITab, "", "Profile")
-CreateSection(ITab, "Selamat datang di script LuvHub X FishGod\nGunakan Semaksimal mungkin jangan sampek ketahuan admin takut di ban wkwk.", "InfoBox")
+CreateSection(ITab, "Selamat datang di script LuvHub X FishGod\nPERHATIKAN AGAK PENTING\n- Gunakan Semaksimal mungkin jangan sampek ketahuan admin\n- Ubah Rarity & Wight sesuka hati ketika mau jual ikan\n- Bismillahirramanirrahim Al-Fatihah.", "InfoBox")
 
 local FTab = CreateTab("Fishing", "🎣", 2)
 CreateSection(FTab, "Basic Farming", "Label")
