@@ -48,6 +48,12 @@ local RacesList = {"Human", "Elf", "Dwarf", "Orc", "Angel", "Demon", "Dragon", "
 _G.AutoSell = false
 _G.AutoSellDelay = 10
 
+_G.WalkSpeedToggle = false
+_G.WalkSpeedValue = 16
+_G.FlyToggle = false
+_G.FlySpeedValue = 16
+_G.NoclipToggle = false
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -474,6 +480,84 @@ local function CreateSection(Page, LabelText, Type, Callback, Extra)
         Scroll.CanvasSize = UDim2.new(0,0,0,SL.AbsoluteContentSize.Y)
         return
     end
+    
+        if Type == "Slider" then
+        local Min = (Extra and Extra.Min) or 16
+        local Max = (Extra and Extra.Max) or 100
+        local Def = (Extra and Extra.Def) or 16
+        
+        local Wrap = Instance.new("Frame", Page)
+        Wrap.LayoutOrder = Order
+        Wrap.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        Wrap.BackgroundTransparency = 0.6
+        Wrap.Size = UDim2.new(1, -10, 0, 45)
+        Instance.new("UICorner", Wrap).CornerRadius = UDim.new(0, 4)
+        
+        local TitleL = Instance.new("TextLabel", Wrap)
+        TitleL.Text = LabelText
+        TitleL.Font = Enum.Font.GothamBold
+        TitleL.TextSize = 9
+        TitleL.TextColor3 = Colors.Text
+        TitleL.Size = UDim2.new(0, 150, 0, 20)
+        TitleL.Position = UDim2.new(0, 10, 0, 0)
+        TitleL.BackgroundTransparency = 1
+        TitleL.TextXAlignment = Enum.TextXAlignment.Left
+        
+        local ValL = Instance.new("TextLabel", Wrap)
+        ValL.Text = tostring(Def)
+        ValL.Font = Enum.Font.GothamBold
+        ValL.TextSize = 9
+        ValL.TextColor3 = Colors.Accent
+        ValL.Size = UDim2.new(0, 50, 0, 20)
+        ValL.Position = UDim2.new(1, -60, 0, 0)
+        ValL.BackgroundTransparency = 1
+        ValL.TextXAlignment = Enum.TextXAlignment.Right
+        
+        local SliderBg = Instance.new("Frame", Wrap)
+        SliderBg.Size = UDim2.new(1, -20, 0, 6)
+        SliderBg.Position = UDim2.new(0, 10, 0, 28)
+        SliderBg.BackgroundColor3 = Color3.fromRGB(50, 50, 60) -- Warna lebih terang dan solid
+        Instance.new("UICorner", SliderBg).CornerRadius = UDim.new(1, 0)
+        
+        local SliderFill = Instance.new("Frame", SliderBg)
+        SliderFill.Size = UDim2.new((Def - Min) / (Max - Min), 0, 1, 0)
+        SliderFill.BackgroundColor3 = Colors.Accent
+        Instance.new("UICorner", SliderFill).CornerRadius = UDim.new(1, 0)
+        
+        local SliderBtn = Instance.new("TextButton", SliderBg)
+        SliderBtn.Size = UDim2.new(1, 0, 1, 0)
+        SliderBtn.BackgroundTransparency = 1
+        SliderBtn.Text = ""
+        
+        local Dragging = false
+        local UserInputService = game:GetService("UserInputService")
+        
+        local function UpdateSlider(input)
+            local pos = math.clamp((input.Position.X - SliderBg.AbsolutePosition.X) / SliderBg.AbsoluteSize.X, 0, 1)
+            SliderFill.Size = UDim2.new(pos, 0, 1, 0)
+            local value = math.floor(Min + ((Max - Min) * pos))
+            ValL.Text = tostring(value)
+            Callback(value)
+        end
+        
+        SliderBtn.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                Dragging = true
+                UpdateSlider(input)
+            end
+        end)
+        
+        UserInputService.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then Dragging = false end
+        end)
+        
+        UserInputService.InputChanged:Connect(function(input)
+            if Dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+                UpdateSlider(input)
+            end
+        end)
+        return
+    end
 
     local Section = Instance.new("Frame", Page)
     Section.LayoutOrder = Order
@@ -650,6 +734,24 @@ CreateSection(ToolTab, "Mulai Auto Spin", "Toggle", function(v)
     _G.AutoSpinRace = v 
     if not v and AutoSpinStatusLbl then AutoSpinStatusLbl.Text = "Status: Berhenti" end
 end)
+
+local PlayerTab = CreateTab("Player", "👤", 6)
+
+CreateSection(PlayerTab, "Movement Settings", "Label")
+CreateSection(PlayerTab, "Enable WalkSpeed", "Toggle", function(v) _G.WalkSpeedToggle = v end)
+CreateSection(PlayerTab, "WalkSpeed Value", "Slider", function(v) _G.WalkSpeedValue = v end, {Min = 16, Max = 100, Def = 16})
+
+CreateSection(PlayerTab, "Fly Settings", "Label")
+CreateSection(PlayerTab, "Enable Fly", "Toggle", function(v) 
+    _G.FlyToggle = v 
+    if not v and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+        LocalPlayer.Character.Humanoid.PlatformStand = false
+    end
+end)
+CreateSection(PlayerTab, "Fly Speed", "Slider", function(v) _G.FlySpeedValue = v end, {Min = 16, Max = 100, Def = 16})
+
+CreateSection(PlayerTab, "Collision Settings", "Label")
+CreateSection(PlayerTab, "Enable Noclip", "Toggle", function(v) _G.NoclipToggle = v end)
 
 Tabs[1].Ico.TextColor3 = Colors.Accent
 Tabs[1].Txt.TextColor3 = Colors.Text
@@ -842,4 +944,121 @@ task.spawn(function()
             task.wait(0.5)
         end
     end
+end)
+
+-- Player Features Logic (WalkSpeed, Fly Modern, Noclip)
+local UserInputService = game:GetService("UserInputService")
+local WasWalkSpeed = false
+local WasFlying = false
+
+task.spawn(function()
+    -- Kita pakai Stepped karena berjalan sebelum kalkulasi physics Roblox
+    RunService.Stepped:Connect(function()
+        if not _G.ScriptRunning then return end
+        
+        local char = LocalPlayer.Character
+        if not char then return end
+        local hum = char:FindFirstChild("Humanoid")
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        
+        -- 1. Logic Noclip
+        if _G.NoclipToggle then
+            for _, part in pairs(char:GetDescendants()) do
+                if part:IsA("BasePart") and part.CanCollide then
+                    part.CanCollide = false
+                end
+            end
+        end
+
+        -- 2. Logic WalkSpeed (Fix Bug Tidak Mau Pelan)
+        if _G.WalkSpeedToggle then
+            if hum and not _G.FlyToggle then
+                hum.WalkSpeed = _G.WalkSpeedValue
+                WasWalkSpeed = true
+            end
+        else
+            if WasWalkSpeed and hum then
+                hum.WalkSpeed = 16 -- Kembalikan ke kecepatan normal Roblox
+                WasWalkSpeed = false
+            end
+        end
+        
+        -- 3. Logic Fly (Fix Bug Patung & Support Mobile Joystick)
+        if _G.FlyToggle and hrp and hum then
+            WasFlying = true
+            hum.PlatformStand = true -- Mematikan animasi agar terbang mulus tanpa hambatan
+            
+            -- Setup Attachment, LinearVelocity, & AlignOrientation (Logika Physics Modern)
+            local flyAtt = hrp:FindFirstChild("LuvHubFlyAtt")
+            local flyVel = hrp:FindFirstChild("LuvHubFlyVel")
+            local flyGyro = hrp:FindFirstChild("LuvHubFlyGyro")
+            
+            if not flyAtt then
+                flyAtt = Instance.new("Attachment", hrp)
+                flyAtt.Name = "LuvHubFlyAtt"
+            end
+            
+            if not flyVel then
+                flyVel = Instance.new("LinearVelocity", hrp)
+                flyVel.Name = "LuvHubFlyVel"
+                flyVel.Attachment0 = flyAtt
+                flyVel.MaxForce = math.huge
+                flyVel.RelativeTo = Enum.ActuatorRelativeTo.World
+            end
+            
+            if not flyGyro then
+                flyGyro = Instance.new("AlignOrientation", hrp)
+                flyGyro.Name = "LuvHubFlyGyro"
+                flyGyro.Mode = Enum.OrientationAlignmentMode.OneAttachment
+                flyGyro.Attachment0 = flyAtt
+                flyGyro.MaxTorque = math.huge
+                flyGyro.Responsiveness = 200
+            end
+            
+            -- Ambil Input Joystick/Keyboard langsung dari sistem kontrol Roblox
+            local moveVector = Vector3.zero
+            pcall(function()
+                moveVector = require(LocalPlayer.PlayerScripts.PlayerModule):GetControls():GetMoveVector()
+            end)
+            
+            local cam = workspace.CurrentCamera
+            local lookVector = cam.CFrame.LookVector
+            local rightVector = cam.CFrame.RightVector
+            
+            -- Kalkulasi arah terbang (Mix antara pandangan kamera dan arah joystick)
+            local flyDir = (lookVector * -moveVector.Z) + (rightVector * moveVector.X)
+            
+            -- Deteksi tombol Naik/Turun tambahan (Untuk PC: Spasi/Ctrl, Untuk Mobile: Tombol Jump bawaan)
+            local yDir = 0
+            if UserInputService:IsKeyDown(Enum.KeyCode.Space) or hum.Jump then yDir = yDir + 1 end
+            if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then yDir = yDir - 1 end
+            
+            flyDir = flyDir + Vector3.new(0, yDir, 0)
+            
+            -- Normalisasi arah agar kecepatan konstan
+            if flyDir.Magnitude > 0 then
+                flyDir = flyDir.Unit
+            end
+            
+            -- Eksekusi kecepatan terbang
+            flyVel.VectorVelocity = flyDir * _G.FlySpeedValue
+            
+            flyGyro.CFrame = CFrame.lookAt(Vector3.zero, lookVector)
+            
+        else
+            -- Pembersihan saat fitur Fly dimatikan (Fix Bug Patung permanen)
+            if WasFlying and hum then
+                hum.PlatformStand = false
+                WasFlying = false
+                -- Menghentikan momentum agar tidak terlempar
+                if hrp then hrp.AssemblyLinearVelocity = Vector3.zero end 
+            end
+            
+            if hrp then
+                if hrp:FindFirstChild("LuvHubFlyAtt") then hrp.LuvHubFlyAtt:Destroy() end
+                if hrp:FindFirstChild("LuvHubFlyVel") then hrp.LuvHubFlyVel:Destroy() end
+                if hrp:FindFirstChild("LuvHubFlyGyro") then hrp.LuvHubFlyGyro:Destroy() end
+            end
+        end
+    end)
 end)
