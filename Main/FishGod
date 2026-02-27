@@ -638,7 +638,6 @@ CreateSection(STab, "Auto Sell Delay (Detik)", "Input", function(v)
     end
 end)
 
-
 local ToolTab = CreateTab("Tools", "🛠️", 5)
 
 CreateSection(ToolTab, "Auto Spin Race", "Label")
