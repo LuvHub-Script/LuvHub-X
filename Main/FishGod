@@ -232,19 +232,25 @@ local function CreateSection(Page, LabelText, Type, Callback, Extra)
         return L
     end
 
-    if Type == "Profile" then
+        if Type == "Profile" then
         local Box = Instance.new("Frame", Page)
         Box.LayoutOrder = Order
         Box.BackgroundColor3 = Color3.fromRGB(20, 25, 35)
-        Box.BackgroundTransparency = 0.4
-        Box.Size = UDim2.new(1, -10, 0, 75)
-        Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 8)
+        Box.BackgroundTransparency = 0.3 -- Gaya Fishzar
+        Box.Size = UDim2.new(0.96, 0, 0, 75) -- Gaya Fishzar
+        Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 6) -- Gaya Fishzar
+        
+        local Stroke = Instance.new("UIStroke", Box)
+        Stroke.Color = Colors.Accent -- Garis biru terang ala Fishzar
+        Stroke.Transparency = 0.5 -- Transparansi garis ala Fishzar
+
         local Img = Instance.new("ImageLabel", Box)
         Img.Size = UDim2.new(0, 55, 0, 55)
         Img.Position = UDim2.new(0, 10, 0, 10)
         Img.BackgroundColor3 = Colors.Sidebar
         Instance.new("UICorner", Img).CornerRadius = UDim.new(1,0)
         task.spawn(function() Img.Image = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420) end)
+        
         local N = Instance.new("TextLabel", Box)
         N.Text = LocalPlayer.DisplayName
         N.Position = UDim2.new(0, 75, 0, 18)
@@ -254,6 +260,7 @@ local function CreateSection(Page, LabelText, Type, Callback, Extra)
         N.TextSize = 11
         N.BackgroundTransparency = 1
         N.TextXAlignment = Enum.TextXAlignment.Left
+        
         local U = Instance.new("TextLabel", Box)
         U.Text = "@" .. LocalPlayer.Name
         U.Position = UDim2.new(0, 75, 0, 35)
@@ -265,17 +272,22 @@ local function CreateSection(Page, LabelText, Type, Callback, Extra)
         U.TextXAlignment = Enum.TextXAlignment.Left
         return
     end
-
+    
     if Type == "InfoBox" then
         local Box = Instance.new("Frame", Page)
         Box.LayoutOrder = Order
         Box.BackgroundColor3 = Color3.fromRGB(20, 25, 35)
-        Box.BackgroundTransparency = 0.4
-        Box.Size = UDim2.new(1, -10, 0, 130)
-        Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 8)
+        Box.BackgroundTransparency = 0.3 -- Gaya Fishzar
+        Box.Size = UDim2.new(0.96, 0, 0, 160) -- Gaya Fishzar
+        Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 6) -- Gaya Fishzar
+        
+        local Stroke = Instance.new("UIStroke", Box)
+        Stroke.Color = Colors.Accent -- Garis biru terang ala Fishzar
+        Stroke.Transparency = 0.5 -- Transparansi garis ala Fishzar
+
         local T = Instance.new("TextLabel", Box)
-        T.Size = UDim2.new(1, -15, 1, -15)
-        T.Position = UDim2.new(0, 10, 0, 10)
+        T.Size = UDim2.new(1, -10, 1, -10)
+        T.Position = UDim2.new(0, 5, 0, 5)
         T.BackgroundTransparency = 1
         T.Text = LabelText
         T.TextColor3 = Colors.Text
@@ -286,7 +298,7 @@ local function CreateSection(Page, LabelText, Type, Callback, Extra)
         T.TextYAlignment = Enum.TextYAlignment.Top
         return
     end
-
+    
     if Type == "Dropdown" then
         local Wrap = Instance.new("Frame", Page)
         Wrap.LayoutOrder = Order
