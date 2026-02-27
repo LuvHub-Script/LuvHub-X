@@ -627,8 +627,8 @@ CreateSection(STab, "Custom Weight", "Input", function(v) _G.SpoofWeight = v end
 CreateSection(STab, "Sell Actions", "Label")
 CreateSection(STab, "Jual Ikan di Tangan", "Button", SellSingleFish, "Sell 1")
 CreateSection(STab, "Jual Semua Ikan", "Button", SellAllFish, "Sell All")
-CreateSection(STab, "Auto Sell Semua Ikan", "Toggle", function(v) _G.AutoSell = v end)
 CreateSection(STab, "Auto Setting", "Label")
+CreateSection(STab, "Auto Sell Semua Ikan", "Toggle", function(v) _G.AutoSell = v end)
 CreateSection(STab, "Auto Sell Delay (Detik)", "Input", function(v) 
     local delay = tonumber(v)
     if delay and delay > 0 then
