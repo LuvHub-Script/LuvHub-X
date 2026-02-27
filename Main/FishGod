@@ -45,6 +45,9 @@ _G.TargetRace = "GodPrimodal"
 _G.SpinDelay = 0
 local RacesList = {"Human", "Elf", "Dwarf", "Orc", "Angel", "Demon", "Dragon", "GodPrimodal", "No Target"}
 
+_G.AutoSell = false
+_G.AutoSellDelay = 10
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -624,6 +627,16 @@ CreateSection(STab, "Custom Weight", "Input", function(v) _G.SpoofWeight = v end
 CreateSection(STab, "Sell Actions", "Label")
 CreateSection(STab, "Jual Ikan di Tangan", "Button", SellSingleFish, "Sell 1")
 CreateSection(STab, "Jual Semua Ikan", "Button", SellAllFish, "Sell All")
+CreateSection(STab, "Auto Sell Semua Ikan", "Toggle", function(v) _G.AutoSell = v end)
+CreateSection(STab, "Auto Sell Delay (Detik)", "Input", function(v) 
+    local delay = tonumber(v)
+    if delay and delay > 0 then
+        _G.AutoSellDelay = delay
+    else
+        _G.AutoSellDelay = 10
+    end
+end)
+
 
 local ToolTab = CreateTab("Tools", "🛠️", 5)
 
@@ -812,6 +825,19 @@ task.spawn(function()
                     end)
                 end
             end
+        else
+            task.wait(0.5)
+        end
+    end
+end)
+
+task.spawn(function()
+    while _G.ScriptRunning do
+        if _G.AutoSell then
+            pcall(function()
+                SellAllFish()
+            end)
+            task.wait(_G.AutoSellDelay)
         else
             task.wait(0.5)
         end
