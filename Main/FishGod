@@ -805,7 +805,7 @@ task.spawn(function()
                 
                 if currentRaceFound == _G.TargetRace then
                     _G.AutoSpinRace = false 
-                    if AutoSpinStatusLbl then AutoSpinStatusLbl.Text = "🎉 DAPAT: " .. _G.TargetRace .. "!" end
+                    if AutoSpinStatusLbl then AutoSpinStatusLbl.Text = "🎉 ALHAMDULILLAH DAPAT: " .. _G.TargetRace .. "!" end
                 else
                     pcall(function()
                         ReplicatedStorage:WaitForChild("RaceEvents"):WaitForChild("SpinRace"):InvokeServer()
